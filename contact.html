@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Book</title>
+  <link rel="stylesheet" href="contact.css">
+</head>
+<body>
+  <h2>Contact Book</h2>
+<div class="container">
+  <div>
+    <label>
+      Name:
+      <input type="text" id="nameInput" />
+    </label>
+    <label>
+      Phone:
+      <input type="text" id="phoneInput" />
+    </label>
+    <button id="addBtn">Add Contact</button>
+  </div>
+
+  <div>
+    <button id="listBtn">List All Contacts</button>
+  </div>
+
+  <div>
+    <label>
+      Search by name:
+      <input type="text" id="searchInput" />
+    </label>
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div id="output"></div>
+
+  </div>
+
+  <script>
+    
+    class Contact {
+      constructor(name, phone) {
+        this.name = name;
+        this.phone = phone;
+      }
+      display() {
+        return `${this.name} - ${this.phone}`;
+      }
+    }
+
+    
+    const contacts = [];
+
+
+    const nameInput = document.getElementById('nameInput');
+    const phoneInput = document.getElementById('phoneInput');
+    const addBtn = document.getElementById('addBtn');
+    const listBtn = document.getElementById('listBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const output = document.getElementById('output');
+
+    
+    addBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      if (!name || !phone) {
+        output.textContent = "Please enter both a name and a phone number.";
+        return;
+      }
+      contacts.push(new Contact(name, phone));
+      output.textContent = `Contact added: ${name} - ${phone}`;
+      nameInput.value = '';
+      phoneInput.value = '';
+    });
+
+    
+    listBtn.addEventListener('click', () => {
+      if (contacts.length === 0) {
+        output.textContent = "No contacts saved yet.";
+        return;
+      }
+      output.textContent = contacts.map(c => c.display()).join('\n');
+    });
+
+    
+    searchBtn.addEventListener('click', () => {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      if (!searchTerm) {
+        output.textContent = "Please enter a name to search.";
+        return;
+      }
+      const results = contacts.filter(c => c.name.toLowerCase().includes(searchTerm));
+      if (results.length === 0) {
+        output.textContent = "No matching contacts found.";
+      } else {
+        output.textContent = results.map(c => c.display()).join('\n');
+      }
+    });
+  </script>
+</body>
+</html>
