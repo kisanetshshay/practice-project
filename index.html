@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -34,10 +34,7 @@
 
   <div id="output"></div>
 
-  </div>
-
   <script>
-    
     class Contact {
       constructor(name, phone) {
         this.name = name;
@@ -47,11 +44,21 @@
         return `${this.name} - ${this.phone}`;
       }
     }
-
-    
-    const contacts = [];
-
-
+  
+    function loadContacts() {
+      const data = localStorage.getItem('contacts');
+      if (data) {
+        return JSON.parse(data).map(obj => new Contact(obj.name, obj.phone));
+      }
+      return [];
+    }
+  
+    function saveContacts(contacts) {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+    }
+  
+    let contacts = loadContacts();
+  
     const nameInput = document.getElementById('nameInput');
     const phoneInput = document.getElementById('phoneInput');
     const addBtn = document.getElementById('addBtn');
@@ -59,8 +66,38 @@
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
     const output = document.getElementById('output');
-
-    
+  
+    function renderContacts(list) {
+      if (list.length === 0) {
+        output.textContent = "No contacts to display.";
+        return;
+      }
+      output.innerHTML = '';
+      list.forEach((c, idx) => {
+        const div = document.createElement('div');
+        div.textContent = c.display();
+        const delBtn = document.createElement('button');
+        delBtn.textContent = "Delete";
+        delBtn.style.marginLeft = "1em";
+        delBtn.onclick = function() {
+          deleteContact(idx, list);
+        };
+        div.appendChild(delBtn);
+        output.appendChild(div);
+      });
+    }
+  
+    function deleteContact(index, currentList) {
+      const contactToDelete = currentList[index];
+      contacts = loadContacts();
+      const idx = contacts.findIndex(c => c.name === contactToDelete.name && c.phone === contactToDelete.phone);
+      if (idx !== -1) {
+        contacts.splice(idx, 1);
+        saveContacts(contacts);
+        renderContacts(contacts);
+      }
+    }
+  
     addBtn.addEventListener('click', () => {
       const name = nameInput.value.trim();
       const phone = phoneInput.value.trim();
@@ -69,22 +106,19 @@
         return;
       }
       contacts.push(new Contact(name, phone));
+      saveContacts(contacts);
       output.textContent = `Contact added: ${name} - ${phone}`;
       nameInput.value = '';
       phoneInput.value = '';
     });
-
-    
+  
     listBtn.addEventListener('click', () => {
-      if (contacts.length === 0) {
-        output.textContent = "No contacts saved yet.";
-        return;
-      }
-      output.textContent = contacts.map(c => c.display()).join('\n');
+      contacts = loadContacts();
+      renderContacts(contacts);
     });
-
-    
+  
     searchBtn.addEventListener('click', () => {
+      contacts = loadContacts();
       const searchTerm = searchInput.value.trim().toLowerCase();
       if (!searchTerm) {
         output.textContent = "Please enter a name to search.";
@@ -94,9 +128,10 @@
       if (results.length === 0) {
         output.textContent = "No matching contacts found.";
       } else {
-        output.textContent = results.map(c => c.display()).join('\n');
+        renderContacts(results);
       }
     });
   </script>
+ 
 </body>
 </html>
